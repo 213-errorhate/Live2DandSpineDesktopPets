@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>17.0</VCProjectVersion>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{6a76faa9-1628-4553-91bd-9901dfae43a3}</ProjectGuid>
+    <RootNamespace>Live2DandSpineDesktopPets</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>D:\Software\Live2DandSpineDesktopPets\external\spine-c\include;D:\Software\Live2DandSpineDesktopPets\external\glfw\include\glad\include;D:\Software\Live2DandSpineDesktopPets\external\stb;D:\Software\Live2DandSpineDesktopPets\external\glfw\include\lib-vc2022;D:\Software\Live2DandSpineDesktopPets\external\glfw\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>glfw3.lib;opengl32.lib;dwmapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>D:\Software\Live2DandSpineDesktopPets\external\glfw\lib-vc2022;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="AppState.h" />
+    <ClInclude Include="ControlPanel.h" />
+    <ClInclude Include="external\glfw\include\glad\glad.h" />
+    <ClInclude Include="external\glfw\include\glad\include\glad\glad.h" />
+    <ClInclude Include="external\glfw\include\glad\include\KHR\khrplatform.h" />
+    <ClInclude Include="external\glfw\include\GLFW\glfw3.h" />
+    <ClInclude Include="external\glfw\include\GLFW\glfw3native.h" />
+    <ClInclude Include="external\glfw\include\KHR\khrplatform.h" />
+    <ClInclude Include="external\spine-c\include\spine\Animation.h" />
+    <ClInclude Include="external\spine-c\include\spine\AnimationState.h" />
+    <ClInclude Include="external\spine-c\include\spine\AnimationStateData.h" />
+    <ClInclude Include="external\spine-c\include\spine\Array.h" />
+    <ClInclude Include="external\spine-c\include\spine\Atlas.h" />
+    <ClInclude Include="external\spine-c\include\spine\AtlasAttachmentLoader.h" />
+    <ClInclude Include="external\spine-c\include\spine\Attachment.h" />
+    <ClInclude Include="external\spine-c\include\spine\AttachmentLoader.h" />
+    <ClInclude Include="external\spine-c\include\spine\Bone.h" />
+    <ClInclude Include="external\spine-c\include\spine\BoneData.h" />
+    <ClInclude Include="external\spine-c\include\spine\BoundingBoxAttachment.h" />
+    <ClInclude Include="external\spine-c\include\spine\ClippingAttachment.h" />
+    <ClInclude Include="external\spine-c\include\spine\Color.h" />
+    <ClInclude Include="external\spine-c\include\spine\dll.h" />
+    <ClInclude Include="external\spine-c\include\spine\Event.h" />
+    <ClInclude Include="external\spine-c\include\spine\EventData.h" />
+    <ClInclude Include="external\spine-c\include\spine\extension.h" />
+    <ClInclude Include="external\spine-c\include\spine\IkConstraint.h" />
+    <ClInclude Include="external\spine-c\include\spine\IkConstraintData.h" />
+    <ClInclude Include="external\spine-c\include\spine\MeshAttachment.h" />
+    <ClInclude Include="external\spine-c\include\spine\PathAttachment.h" />
+    <ClInclude Include="external\spine-c\include\spine\PathConstraint.h" />
+    <ClInclude Include="external\spine-c\include\spine\PathConstraintData.h" />
+    <ClInclude Include="external\spine-c\include\spine\PointAttachment.h" />
+    <ClInclude Include="external\spine-c\include\spine\RegionAttachment.h" />
+    <ClInclude Include="external\spine-c\include\spine\Skeleton.h" />
+    <ClInclude Include="external\spine-c\include\spine\SkeletonBinary.h" />
+    <ClInclude Include="external\spine-c\include\spine\SkeletonBounds.h" />
+    <ClInclude Include="external\spine-c\include\spine\SkeletonClipping.h" />
+    <ClInclude Include="external\spine-c\include\spine\SkeletonData.h" />
+    <ClInclude Include="external\spine-c\include\spine\SkeletonJson.h" />
+    <ClInclude Include="external\spine-c\include\spine\Skin.h" />
+    <ClInclude Include="external\spine-c\include\spine\Slot.h" />
+    <ClInclude Include="external\spine-c\include\spine\SlotData.h" />
+    <ClInclude Include="external\spine-c\include\spine\spine.h" />
+    <ClInclude Include="external\spine-c\include\spine\TransformConstraint.h" />
+    <ClInclude Include="external\spine-c\include\spine\TransformConstraintData.h" />
+    <ClInclude Include="external\spine-c\include\spine\Triangulator.h" />
+    <ClInclude Include="external\spine-c\include\spine\VertexAttachment.h" />
+    <ClInclude Include="external\spine-c\include\spine\VertexEffect.h" />
+    <ClInclude Include="external\spine-c\src\spine\Json.h" />
+    <ClInclude Include="external\stb\stb_image.h" />
+    <ClInclude Include="ModelRegistry.h" />
+    <ClInclude Include="SpineModel.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="ControlPanel.cpp" />
+    <ClCompile Include="external\glfw\include\glad\src\glad.c" />
+    <ClCompile Include="external\spine-c\src\spine\Animation.c" />
+    <ClCompile Include="external\spine-c\src\spine\AnimationState.c" />
+    <ClCompile Include="external\spine-c\src\spine\AnimationStateData.c" />
+    <ClCompile Include="external\spine-c\src\spine\Array.c" />
+    <ClCompile Include="external\spine-c\src\spine\Atlas.c" />
+    <ClCompile Include="external\spine-c\src\spine\AtlasAttachmentLoader.c" />
+    <ClCompile Include="external\spine-c\src\spine\Attachment.c" />
+    <ClCompile Include="external\spine-c\src\spine\AttachmentLoader.c" />
+    <ClCompile Include="external\spine-c\src\spine\Bone.c" />
+    <ClCompile Include="external\spine-c\src\spine\BoneData.c" />
+    <ClCompile Include="external\spine-c\src\spine\BoundingBoxAttachment.c" />
+    <ClCompile Include="external\spine-c\src\spine\ClippingAttachment.c" />
+    <ClCompile Include="external\spine-c\src\spine\Color.c" />
+    <ClCompile Include="external\spine-c\src\spine\Event.c" />
+    <ClCompile Include="external\spine-c\src\spine\EventData.c" />
+    <ClCompile Include="external\spine-c\src\spine\extension.c" />
+    <ClCompile Include="external\spine-c\src\spine\IkConstraint.c" />
+    <ClCompile Include="external\spine-c\src\spine\IkConstraintData.c" />
+    <ClCompile Include="external\spine-c\src\spine\Json.c" />
+    <ClCompile Include="external\spine-c\src\spine\MeshAttachment.c" />
+    <ClCompile Include="external\spine-c\src\spine\PathAttachment.c" />
+    <ClCompile Include="external\spine-c\src\spine\PathConstraint.c" />
+    <ClCompile Include="external\spine-c\src\spine\PathConstraintData.c" />
+    <ClCompile Include="external\spine-c\src\spine\PointAttachment.c" />
+    <ClCompile Include="external\spine-c\src\spine\RegionAttachment.c" />
+    <ClCompile Include="external\spine-c\src\spine\Skeleton.c" />
+    <ClCompile Include="external\spine-c\src\spine\SkeletonBinary.c" />
+    <ClCompile Include="external\spine-c\src\spine\SkeletonBounds.c" />
+    <ClCompile Include="external\spine-c\src\spine\SkeletonClipping.c" />
+    <ClCompile Include="external\spine-c\src\spine\SkeletonData.c" />
+    <ClCompile Include="external\spine-c\src\spine\SkeletonJson.c" />
+    <ClCompile Include="external\spine-c\src\spine\Skin.c" />
+    <ClCompile Include="external\spine-c\src\spine\Slot.c" />
+    <ClCompile Include="external\spine-c\src\spine\SlotData.c" />
+    <ClCompile Include="external\spine-c\src\spine\TransformConstraint.c" />
+    <ClCompile Include="external\spine-c\src\spine\TransformConstraintData.c" />
+    <ClCompile Include="external\spine-c\src\spine\Triangulator.c" />
+    <ClCompile Include="external\spine-c\src\spine\VertexAttachment.c" />
+    <ClCompile Include="external\spine-c\src\spine\VertexEffect.c" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="ModelRegistry.cpp" />
+    <ClCompile Include="SpineModel.cpp" />
+    <ClCompile Include="util.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="assets\shaders\sprite.frag" />
+    <None Include="assets\shaders\sprite.vert" />
+    <None Include="assets\spine\idle_8\Spine_Idle_8.atlas" />
+    <None Include="assets\spine\idle_8\Spine_Idle_8.skel" />
+    <None Include="external\glfw\lib-vc2022\glfw3.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="external\glfw\lib-vc2022\glfw3.lib" />
+    <Library Include="external\glfw\lib-vc2022\glfw3dll.lib" />
+    <Library Include="external\glfw\lib-vc2022\glfw3_mt.lib" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="assets\spine\idle_8\Spine_Idle_8.png" />
+    <Image Include="assets\test.png" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

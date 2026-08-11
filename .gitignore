@@ -1,0 +1,23 @@
+# Visual Studio
+.vs/
+*.suo
+*.user
+*.VC.db*
+*.ipch
+
+# Build outputs
+x64/
+Debug/
+Release/
+Win32/
+Live2Dan.6a76faa9/
+*.obj
+*.pdb
+*.ilk
+*.tlog
+*.log
+*.recipe
+*.lastbuildstate
+
+# Local model registry
+assets/spine/models.txt
