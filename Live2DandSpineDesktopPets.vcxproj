@@ -1,14 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
-    <ProjectConfiguration Include="Debug|Win32">
-      <Configuration>Debug</Configuration>
-      <Platform>Win32</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Release|Win32">
-      <Configuration>Release</Configuration>
-      <Platform>Win32</Platform>
-    </ProjectConfiguration>
     <ProjectConfiguration Include="Debug|x64">
       <Configuration>Debug</Configuration>
       <Platform>x64</Platform>
@@ -26,19 +18,6 @@
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
-    <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
-    <CharacterSet>Unicode</CharacterSet>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
-    <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
-    <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>Unicode</CharacterSet>
-  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
@@ -57,12 +36,6 @@
   </ImportGroup>
   <ImportGroup Label="Shared">
   </ImportGroup>
-  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-  </ImportGroup>
-  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-  </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
@@ -70,45 +43,20 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
-      <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ConformanceMode>true</ConformanceMode>
-    </ClCompile>
-    <Link>
-      <SubSystem>Console</SubSystem>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-    </Link>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
-      <IntrinsicFunctions>true</IntrinsicFunctions>
-      <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ConformanceMode>true</ConformanceMode>
-    </ClCompile>
-    <Link>
-      <SubSystem>Console</SubSystem>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-    </Link>
-  </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;CSM_TARGET_WIN_GL;GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>D:\Software\Live2DandSpineDesktopPets\external\spine-c\include;D:\Software\Live2DandSpineDesktopPets\external\glfw\include\glad\include;D:\Software\Live2DandSpineDesktopPets\external\stb;D:\Software\Live2DandSpineDesktopPets\external\glfw\include\lib-vc2022;D:\Software\Live2DandSpineDesktopPets\external\glfw\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalIncludeDirectories>$(ProjectDir)external\spine-c\include;$(ProjectDir)external\glfw\include\glad\include;$(ProjectDir)external\stb;$(ProjectDir)external\glfw\include;$(ProjectDir)external\CubismSdkForNative\Core\include;$(ProjectDir)external\CubismSdkForNative\Framework\src;$(ProjectDir)external\CubismSdkForNative\Samples\OpenGL\thirdParty\glew\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>glfw3.lib;opengl32.lib;dwmapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>D:\Software\Live2DandSpineDesktopPets\external\glfw\lib-vc2022;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glfw3.lib;Live2DCubismCore_MDd.lib;opengl32.lib;dwmapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)external\glfw\lib-vc2022;$(ProjectDir)external\CubismSdkForNative\Core\lib\windows\x86_64\143;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -117,12 +65,16 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;CSM_TARGET_WIN_GL;GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalIncludeDirectories>$(ProjectDir)external\spine-c\include;$(ProjectDir)external\glfw\include\glad\include;$(ProjectDir)external\stb;$(ProjectDir)external\glfw\include;$(ProjectDir)external\CubismSdkForNative\Core\include;$(ProjectDir)external\CubismSdkForNative\Framework\src;$(ProjectDir)external\CubismSdkForNative\Samples\OpenGL\thirdParty\glew\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>glfw3.lib;Live2DCubismCore_MD.lib;opengl32.lib;dwmapi.lib;comctl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)external\glfw\lib-vc2022;$(ProjectDir)external\CubismSdkForNative\Core\lib\windows\x86_64\143;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -177,10 +129,18 @@
     <ClInclude Include="external\spine-c\src\spine\Json.h" />
     <ClInclude Include="external\stb\stb_image.h" />
     <ClInclude Include="ModelRegistry.h" />
+    <ClInclude Include="AppSettings.h" />
+    <ClInclude Include="Live2DModel.h" />
     <ClInclude Include="SpineModel.h" />
+    <ClInclude Include="SpineRenderer.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AppSettings.cpp" />
     <ClCompile Include="ControlPanel.cpp" />
+    <ClCompile Include="Live2DModel.cpp" />
+    <ClCompile Include="external\CubismSdkForNative\Samples\OpenGL\thirdParty\glew\src\glew.c" />
+    <ClCompile Include="external\CubismSdkForNative\Framework\src\**\*.cpp"
+               Exclude="external\CubismSdkForNative\Framework\src\Rendering\D3D9\**\*.cpp;external\CubismSdkForNative\Framework\src\Rendering\D3D11\**\*.cpp;external\CubismSdkForNative\Framework\src\Rendering\Vulkan\**\*.cpp" />
     <ClCompile Include="external\glfw\include\glad\src\glad.c" />
     <ClCompile Include="external\spine-c\src\spine\Animation.c" />
     <ClCompile Include="external\spine-c\src\spine\AnimationState.c" />
@@ -224,13 +184,13 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="ModelRegistry.cpp" />
     <ClCompile Include="SpineModel.cpp" />
+    <ClCompile Include="SpineRenderer.cpp" />
     <ClCompile Include="util.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="SPINE_SUPPORT.md" />
     <None Include="assets\shaders\sprite.frag" />
     <None Include="assets\shaders\sprite.vert" />
-    <None Include="assets\spine\idle_8\Spine_Idle_8.atlas" />
-    <None Include="assets\spine\idle_8\Spine_Idle_8.skel" />
     <None Include="external\glfw\lib-vc2022\glfw3.dll" />
   </ItemGroup>
   <ItemGroup>
@@ -239,7 +199,6 @@
     <Library Include="external\glfw\lib-vc2022\glfw3_mt.lib" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="assets\spine\idle_8\Spine_Idle_8.png" />
     <Image Include="assets\test.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

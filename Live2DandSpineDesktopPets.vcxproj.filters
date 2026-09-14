@@ -159,8 +159,20 @@
     <ClInclude Include="external\spine-c\src\spine\Json.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="SpineRenderer.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Live2DModel.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="AppSettings.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AppSettings.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
     <ClCompile Include="main.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -287,13 +299,21 @@
     <ClCompile Include="external\spine-c\src\spine\VertexEffect.c">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="SpineRenderer.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Live2DModel.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="external\CubismSdkForNative\Samples\OpenGL\thirdParty\glew\src\glew.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <None Include="SPINE_SUPPORT.md" />
     <None Include="external\glfw\lib-vc2022\glfw3.dll" />
     <None Include="assets\shaders\sprite.frag" />
     <None Include="assets\shaders\sprite.vert" />
-    <None Include="assets\spine\idle_8\Spine_Idle_8.atlas" />
-    <None Include="assets\spine\idle_8\Spine_Idle_8.skel" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="external\glfw\lib-vc2022\glfw3.lib" />
@@ -302,9 +322,6 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="assets\test.png">
-      <Filter>资源文件</Filter>
-    </Image>
-    <Image Include="assets\spine\idle_8\Spine_Idle_8.png">
       <Filter>资源文件</Filter>
     </Image>
   </ItemGroup>
