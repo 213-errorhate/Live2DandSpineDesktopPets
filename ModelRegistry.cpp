@@ -1,5 +1,6 @@
 #define _CRT_SECURE_NO_WARNINGS
 
+#define NOMINMAX
 #include "ModelRegistry.h"
 #include "AppState.h"
 #include "PathUtils.h"
@@ -8,6 +9,7 @@
 #include <algorithm>
 #include <cstdio>
 #include <cctype>
+#include <cstdlib>
 #include <filesystem>
 #include <fstream>
 #include <sstream>
@@ -34,6 +36,235 @@ bool copyFileUtf8(const std::string& from, const std::string& to) {
 bool fileExists(const std::string& path) {
     return GetFileAttributesW(toWidePath(path).c_str()) != INVALID_FILE_ATTRIBUTES;
 }
+
+constexpr size_t kJsonProbeBytes = 64 * 1024;
+constexpr long kMaxModelSettingsBytes = 16 * 1024 * 1024;
+
+bool readPossibleLive2DSettings(const std::string& path, std::string& text) {
+    text.clear();
+    FILE* file = _wfopen(toWidePath(path).c_str(), L"rb");
+    if (!file) return false;
+    if (fseek(file, 0, SEEK_END) != 0) {
+        fclose(file);
+        return false;
+    }
+    const long length = ftell(file);
+    if (length <= 0 || length > kMaxModelSettingsBytes || fseek(file, 0, SEEK_SET) != 0) {
+        fclose(file);
+        return false;
+    }
+
+    const size_t probeLength = std::min(static_cast<size_t>(length), kJsonProbeBytes);
+    std::string probe(probeLength, '\0');
+    const bool probeRead = fread(probe.data(), 1, probe.size(), file) == probe.size();
+    if (!probeRead || probe.find("\"FileReferences\"") == std::string::npos ||
+        probe.find("\"Moc\"") == std::string::npos) {
+        fclose(file);
+        return false;
+    }
+
+    text.resize(static_cast<size_t>(length));
+    if (fseek(file, 0, SEEK_SET) != 0 ||
+        fread(text.data(), 1, text.size(), file) != text.size()) {
+        text.clear();
+        fclose(file);
+        return false;
+    }
+    fclose(file);
+    return true;
+}
+
+class JsonReader {
+public:
+    explicit JsonReader(const std::string& text) : text_(text) {
+        if (text_.size() >= 3 && static_cast<unsigned char>(text_[0]) == 0xef &&
+            static_cast<unsigned char>(text_[1]) == 0xbb &&
+            static_cast<unsigned char>(text_[2]) == 0xbf) {
+            position_ = 3;
+        }
+    }
+
+    bool isLive2DModelSettings() {
+        if (!consume('{')) return false;
+        bool version3 = false;
+        bool fileReferences = false;
+        bool first = true;
+        while (true) {
+            skipWhitespace();
+            if (consume('}')) break;
+            if (!first && !consume(',')) return false;
+            first = false;
+
+            std::string key;
+            if (!readString(key) || !consume(':')) return false;
+            if (key == "Version") {
+                double version = 0.0;
+                if (!readNumber(version)) return false;
+                version3 = version == 3.0;
+            } else if (key == "FileReferences") {
+                if (!readFileReferences(fileReferences)) return false;
+            } else if (!skipValue()) {
+                return false;
+            }
+        }
+        skipWhitespace();
+        return position_ == text_.size() && version3 && fileReferences;
+    }
+
+private:
+    void skipWhitespace() {
+        while (position_ < text_.size()) {
+            const char value = text_[position_];
+            if (value != ' ' && value != '\t' && value != '\r' && value != '\n') break;
+            ++position_;
+        }
+    }
+
+    bool consume(char expected) {
+        skipWhitespace();
+        if (position_ >= text_.size() || text_[position_] != expected) return false;
+        ++position_;
+        return true;
+    }
+
+    bool readString(std::string& value) {
+        skipWhitespace();
+        if (position_ >= text_.size() || text_[position_++] != '"') return false;
+        value.clear();
+        while (position_ < text_.size()) {
+            const unsigned char current = static_cast<unsigned char>(text_[position_++]);
+            if (current == '"') return true;
+            if (current < 0x20) return false;
+            if (current != '\\') {
+                value.push_back(static_cast<char>(current));
+                continue;
+            }
+            if (position_ >= text_.size()) return false;
+            const char escaped = text_[position_++];
+            switch (escaped) {
+            case '"': value.push_back('"'); break;
+            case '\\': value.push_back('\\'); break;
+            case '/': value.push_back('/'); break;
+            case 'b': value.push_back('\b'); break;
+            case 'f': value.push_back('\f'); break;
+            case 'n': value.push_back('\n'); break;
+            case 'r': value.push_back('\r'); break;
+            case 't': value.push_back('\t'); break;
+            case 'u':
+                if (position_ + 4 > text_.size()) return false;
+                for (int i = 0; i < 4; ++i) {
+                    const char hex = text_[position_++];
+                    if (!std::isxdigit(static_cast<unsigned char>(hex))) return false;
+                }
+                value.push_back('?');
+                break;
+            default: return false;
+            }
+        }
+        return false;
+    }
+
+    bool readNumber(double& value) {
+        skipWhitespace();
+        if (position_ >= text_.size()) return false;
+        char* end = nullptr;
+        value = std::strtod(text_.c_str() + position_, &end);
+        if (end == text_.c_str() + position_) return false;
+        position_ = static_cast<size_t>(end - text_.c_str());
+        return true;
+    }
+
+    bool readStringArray(bool& valid) {
+        if (!consume('[')) return false;
+        bool first = true;
+        bool hasString = false;
+        while (true) {
+            skipWhitespace();
+            if (consume(']')) break;
+            if (!first && !consume(',')) return false;
+            first = false;
+            std::string item;
+            if (!readString(item)) return false;
+            if (!item.empty()) hasString = true;
+        }
+        valid = hasString;
+        return true;
+    }
+
+    bool readFileReferences(bool& valid) {
+        if (!consume('{')) return false;
+        bool hasMoc = false;
+        bool hasTextures = false;
+        bool first = true;
+        while (true) {
+            skipWhitespace();
+            if (consume('}')) break;
+            if (!first && !consume(',')) return false;
+            first = false;
+
+            std::string key;
+            if (!readString(key) || !consume(':')) return false;
+            if (key == "Moc") {
+                std::string moc;
+                if (!readString(moc)) return false;
+                hasMoc = !moc.empty();
+            } else if (key == "Textures") {
+                if (!readStringArray(hasTextures)) return false;
+            } else if (!skipValue()) {
+                return false;
+            }
+        }
+        valid = hasMoc && hasTextures;
+        return true;
+    }
+
+    bool skipValue(int depth = 0) {
+        if (depth > 128) return false;
+        skipWhitespace();
+        if (position_ >= text_.size()) return false;
+        if (text_[position_] == '"') {
+            std::string ignored;
+            return readString(ignored);
+        }
+        if (text_[position_] == '{') {
+            ++position_;
+            bool first = true;
+            while (true) {
+                skipWhitespace();
+                if (consume('}')) return true;
+                if (!first && !consume(',')) return false;
+                first = false;
+                std::string key;
+                if (!readString(key) || !consume(':') || !skipValue(depth + 1)) return false;
+            }
+        }
+        if (text_[position_] == '[') {
+            ++position_;
+            bool first = true;
+            while (true) {
+                skipWhitespace();
+                if (consume(']')) return true;
+                if (!first && !consume(',')) return false;
+                first = false;
+                if (!skipValue(depth + 1)) return false;
+            }
+        }
+        if (text_.compare(position_, 4, "true") == 0 ||
+            text_.compare(position_, 4, "null") == 0) {
+            position_ += 4;
+            return true;
+        }
+        if (text_.compare(position_, 5, "false") == 0) {
+            position_ += 5;
+            return true;
+        }
+        double ignored = 0.0;
+        return readNumber(ignored);
+    }
+
+    const std::string& text_;
+    size_t position_ = 0;
+};
 
 std::string dirName(const std::string& path) {
     size_t slash = path.find_last_of("/\\");
@@ -154,6 +385,20 @@ bool modelFilesExist(const ModelConfig& config) {
 
 } // namespace
 
+bool isLive2DModelJson(const std::string& path) {
+    constexpr const char* suffix = ".json";
+    if (path.size() < 5 || !std::equal(path.end() - 5, path.end(), suffix,
+        [](unsigned char left, unsigned char right) {
+            return std::tolower(left) == std::tolower(right);
+        })) {
+        return false;
+    }
+    std::string text;
+    if (!readPossibleLive2DSettings(path, text)) return false;
+    JsonReader reader(text);
+    return reader.isLive2DModelSettings();
+}
+
 bool loadModelRegistry(const std::string& path, std::vector<ModelConfig>& models) {
     std::ifstream in(path);
     if (!in) return false;
@@ -223,11 +468,12 @@ bool discoverLive2DModels(const std::string& root, std::vector<ModelConfig>& mod
         std::string lower = filename;
         std::transform(lower.begin(), lower.end(), lower.begin(),
             [](unsigned char ch) { return static_cast<char>(std::tolower(ch)); });
-        constexpr const char* suffix = ".model3.json";
-        if (lower.size() < 12 || lower.compare(lower.size() - 12, 12, suffix) != 0)
+        constexpr const char* jsonSuffix = ".json";
+        if (lower.size() < 5 || lower.compare(lower.size() - 5, 5, jsonSuffix) != 0)
             continue;
 
         const std::string path = iterator->path().u8string();
+        if (!isLive2DModelJson(path)) continue;
         const std::wstring candidatePath = fullPath(path);
         const bool duplicate = std::any_of(models.begin(), models.end(),
             [&candidatePath](const ModelConfig& model) {
@@ -236,7 +482,13 @@ bool discoverLive2DModels(const std::string& root, std::vector<ModelConfig>& mod
         if (duplicate) continue;
 
         ModelConfig config;
-        config.name = filename.substr(0, filename.size() - 12);
+        constexpr const char* model3Suffix = ".model3.json";
+        if (lower.size() >= 12 &&
+            lower.compare(lower.size() - 12, 12, model3Suffix) == 0) {
+            config.name = filename.substr(0, filename.size() - 12);
+        } else {
+            config.name = filename.substr(0, filename.size() - 5);
+        }
         config.skeletonPath = path;
         config.premultipliedAlpha = false;
         config.managedFiles = false;

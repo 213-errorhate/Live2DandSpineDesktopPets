@@ -50,7 +50,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;CSM_TARGET_WIN_GL;GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir)external\spine-c\include;$(ProjectDir)external\glfw\include\glad\include;$(ProjectDir)external\stb;$(ProjectDir)external\glfw\include;$(ProjectDir)external\CubismSdkForNative\Core\include;$(ProjectDir)external\CubismSdkForNative\Framework\src;$(ProjectDir)external\CubismSdkForNative\Samples\OpenGL\thirdParty\glew\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)external\glfw\include\glad\include;$(ProjectDir)external\stb;$(ProjectDir)external\glfw\include;$(ProjectDir)external\CubismSdkForNative\Core\include;$(ProjectDir)external\CubismSdkForNative\Framework\src;$(ProjectDir)external\CubismSdkForNative\Samples\OpenGL\thirdParty\glew\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -68,7 +68,7 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;CSM_TARGET_WIN_GL;GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir)external\spine-c\include;$(ProjectDir)external\glfw\include\glad\include;$(ProjectDir)external\stb;$(ProjectDir)external\glfw\include;$(ProjectDir)external\CubismSdkForNative\Core\include;$(ProjectDir)external\CubismSdkForNative\Framework\src;$(ProjectDir)external\CubismSdkForNative\Samples\OpenGL\thirdParty\glew\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)external\glfw\include\glad\include;$(ProjectDir)external\stb;$(ProjectDir)external\glfw\include;$(ProjectDir)external\CubismSdkForNative\Core\include;$(ProjectDir)external\CubismSdkForNative\Framework\src;$(ProjectDir)external\CubismSdkForNative\Samples\OpenGL\thirdParty\glew\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -86,53 +86,14 @@
     <ClInclude Include="external\glfw\include\GLFW\glfw3.h" />
     <ClInclude Include="external\glfw\include\GLFW\glfw3native.h" />
     <ClInclude Include="external\glfw\include\KHR\khrplatform.h" />
-    <ClInclude Include="external\spine-c\include\spine\Animation.h" />
-    <ClInclude Include="external\spine-c\include\spine\AnimationState.h" />
-    <ClInclude Include="external\spine-c\include\spine\AnimationStateData.h" />
-    <ClInclude Include="external\spine-c\include\spine\Array.h" />
-    <ClInclude Include="external\spine-c\include\spine\Atlas.h" />
-    <ClInclude Include="external\spine-c\include\spine\AtlasAttachmentLoader.h" />
-    <ClInclude Include="external\spine-c\include\spine\Attachment.h" />
-    <ClInclude Include="external\spine-c\include\spine\AttachmentLoader.h" />
-    <ClInclude Include="external\spine-c\include\spine\Bone.h" />
-    <ClInclude Include="external\spine-c\include\spine\BoneData.h" />
-    <ClInclude Include="external\spine-c\include\spine\BoundingBoxAttachment.h" />
-    <ClInclude Include="external\spine-c\include\spine\ClippingAttachment.h" />
-    <ClInclude Include="external\spine-c\include\spine\Color.h" />
-    <ClInclude Include="external\spine-c\include\spine\dll.h" />
-    <ClInclude Include="external\spine-c\include\spine\Event.h" />
-    <ClInclude Include="external\spine-c\include\spine\EventData.h" />
-    <ClInclude Include="external\spine-c\include\spine\extension.h" />
-    <ClInclude Include="external\spine-c\include\spine\IkConstraint.h" />
-    <ClInclude Include="external\spine-c\include\spine\IkConstraintData.h" />
-    <ClInclude Include="external\spine-c\include\spine\MeshAttachment.h" />
-    <ClInclude Include="external\spine-c\include\spine\PathAttachment.h" />
-    <ClInclude Include="external\spine-c\include\spine\PathConstraint.h" />
-    <ClInclude Include="external\spine-c\include\spine\PathConstraintData.h" />
-    <ClInclude Include="external\spine-c\include\spine\PointAttachment.h" />
-    <ClInclude Include="external\spine-c\include\spine\RegionAttachment.h" />
-    <ClInclude Include="external\spine-c\include\spine\Skeleton.h" />
-    <ClInclude Include="external\spine-c\include\spine\SkeletonBinary.h" />
-    <ClInclude Include="external\spine-c\include\spine\SkeletonBounds.h" />
-    <ClInclude Include="external\spine-c\include\spine\SkeletonClipping.h" />
-    <ClInclude Include="external\spine-c\include\spine\SkeletonData.h" />
-    <ClInclude Include="external\spine-c\include\spine\SkeletonJson.h" />
-    <ClInclude Include="external\spine-c\include\spine\Skin.h" />
-    <ClInclude Include="external\spine-c\include\spine\Slot.h" />
-    <ClInclude Include="external\spine-c\include\spine\SlotData.h" />
-    <ClInclude Include="external\spine-c\include\spine\spine.h" />
-    <ClInclude Include="external\spine-c\include\spine\TransformConstraint.h" />
-    <ClInclude Include="external\spine-c\include\spine\TransformConstraintData.h" />
-    <ClInclude Include="external\spine-c\include\spine\Triangulator.h" />
-    <ClInclude Include="external\spine-c\include\spine\VertexAttachment.h" />
-    <ClInclude Include="external\spine-c\include\spine\VertexEffect.h" />
-    <ClInclude Include="external\spine-c\src\spine\Json.h" />
     <ClInclude Include="external\stb\stb_image.h" />
     <ClInclude Include="ModelRegistry.h" />
     <ClInclude Include="AppSettings.h" />
     <ClInclude Include="Live2DModel.h" />
     <ClInclude Include="SpineModel.h" />
     <ClInclude Include="SpineRenderer.h" />
+    <ClInclude Include="SpineBackendApi.h" />
+    <ClInclude Include="SpineVersionDetector.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AppSettings.cpp" />
@@ -142,49 +103,11 @@
     <ClCompile Include="external\CubismSdkForNative\Framework\src\**\*.cpp"
                Exclude="external\CubismSdkForNative\Framework\src\Rendering\D3D9\**\*.cpp;external\CubismSdkForNative\Framework\src\Rendering\D3D11\**\*.cpp;external\CubismSdkForNative\Framework\src\Rendering\Vulkan\**\*.cpp" />
     <ClCompile Include="external\glfw\include\glad\src\glad.c" />
-    <ClCompile Include="external\spine-c\src\spine\Animation.c" />
-    <ClCompile Include="external\spine-c\src\spine\AnimationState.c" />
-    <ClCompile Include="external\spine-c\src\spine\AnimationStateData.c" />
-    <ClCompile Include="external\spine-c\src\spine\Array.c" />
-    <ClCompile Include="external\spine-c\src\spine\Atlas.c" />
-    <ClCompile Include="external\spine-c\src\spine\AtlasAttachmentLoader.c" />
-    <ClCompile Include="external\spine-c\src\spine\Attachment.c" />
-    <ClCompile Include="external\spine-c\src\spine\AttachmentLoader.c" />
-    <ClCompile Include="external\spine-c\src\spine\Bone.c" />
-    <ClCompile Include="external\spine-c\src\spine\BoneData.c" />
-    <ClCompile Include="external\spine-c\src\spine\BoundingBoxAttachment.c" />
-    <ClCompile Include="external\spine-c\src\spine\ClippingAttachment.c" />
-    <ClCompile Include="external\spine-c\src\spine\Color.c" />
-    <ClCompile Include="external\spine-c\src\spine\Event.c" />
-    <ClCompile Include="external\spine-c\src\spine\EventData.c" />
-    <ClCompile Include="external\spine-c\src\spine\extension.c" />
-    <ClCompile Include="external\spine-c\src\spine\IkConstraint.c" />
-    <ClCompile Include="external\spine-c\src\spine\IkConstraintData.c" />
-    <ClCompile Include="external\spine-c\src\spine\Json.c" />
-    <ClCompile Include="external\spine-c\src\spine\MeshAttachment.c" />
-    <ClCompile Include="external\spine-c\src\spine\PathAttachment.c" />
-    <ClCompile Include="external\spine-c\src\spine\PathConstraint.c" />
-    <ClCompile Include="external\spine-c\src\spine\PathConstraintData.c" />
-    <ClCompile Include="external\spine-c\src\spine\PointAttachment.c" />
-    <ClCompile Include="external\spine-c\src\spine\RegionAttachment.c" />
-    <ClCompile Include="external\spine-c\src\spine\Skeleton.c" />
-    <ClCompile Include="external\spine-c\src\spine\SkeletonBinary.c" />
-    <ClCompile Include="external\spine-c\src\spine\SkeletonBounds.c" />
-    <ClCompile Include="external\spine-c\src\spine\SkeletonClipping.c" />
-    <ClCompile Include="external\spine-c\src\spine\SkeletonData.c" />
-    <ClCompile Include="external\spine-c\src\spine\SkeletonJson.c" />
-    <ClCompile Include="external\spine-c\src\spine\Skin.c" />
-    <ClCompile Include="external\spine-c\src\spine\Slot.c" />
-    <ClCompile Include="external\spine-c\src\spine\SlotData.c" />
-    <ClCompile Include="external\spine-c\src\spine\TransformConstraint.c" />
-    <ClCompile Include="external\spine-c\src\spine\TransformConstraintData.c" />
-    <ClCompile Include="external\spine-c\src\spine\Triangulator.c" />
-    <ClCompile Include="external\spine-c\src\spine\VertexAttachment.c" />
-    <ClCompile Include="external\spine-c\src\spine\VertexEffect.c" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="ModelRegistry.cpp" />
     <ClCompile Include="SpineModel.cpp" />
     <ClCompile Include="SpineRenderer.cpp" />
+    <ClCompile Include="SpineVersionDetector.cpp" />
     <ClCompile Include="util.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -200,6 +123,24 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="assets\test.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="SpineBackend38.vcxproj">
+      <Project>{A0E8D382-6C1E-4D6A-A45C-38BCE121A381}</Project>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+    <ProjectReference Include="SpineBackend41.vcxproj">
+      <Project>{A0E8D382-6C1E-4D6A-A45C-41BCE121A381}</Project>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+    <ProjectReference Include="SpineBackend42.vcxproj">
+      <Project>{A0E8D382-6C1E-4D6A-A45C-42BCE121A381}</Project>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+    <ProjectReference Include="SpineBackend43.vcxproj">
+      <Project>{A0E8D382-6C1E-4D6A-A45C-43BCE121A381}</Project>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

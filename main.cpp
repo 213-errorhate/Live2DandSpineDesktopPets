@@ -26,121 +26,6 @@
 #include "ModelRegistry.h"
 #include "PathUtils.h"
 
-static std::wstring toWidePath(const char* path) {
-    if (!path) return L"";
-    int len = MultiByteToWideChar(CP_UTF8, 0, path, -1, nullptr, 0);
-    if (len <= 0) return L"";
-    std::wstring result(len, L'\0');
-    MultiByteToWideChar(CP_UTF8, 0, path, -1, &result[0], len);
-    if (!result.empty()) result.pop_back();
-    return result;
-}
-
-extern "C" {
-#include <spine/spine.h>
-
-static GLint toMinFilter(spAtlasFilter filter) {
-    switch (filter) {
-    case SP_ATLAS_NEAREST: return GL_NEAREST;
-    case SP_ATLAS_MIPMAP_NEAREST_NEAREST: return GL_NEAREST_MIPMAP_NEAREST;
-    case SP_ATLAS_MIPMAP_LINEAR_NEAREST: return GL_LINEAR_MIPMAP_NEAREST;
-    case SP_ATLAS_MIPMAP_NEAREST_LINEAR: return GL_NEAREST_MIPMAP_LINEAR;
-    case SP_ATLAS_MIPMAP:
-    case SP_ATLAS_MIPMAP_LINEAR_LINEAR: return GL_LINEAR_MIPMAP_LINEAR;
-    case SP_ATLAS_LINEAR:
-    case SP_ATLAS_UNKNOWN_FILTER:
-    default: return GL_LINEAR;
-    }
-}
-
-static GLint toMagFilter(spAtlasFilter filter) {
-    return filter == SP_ATLAS_NEAREST ? GL_NEAREST : GL_LINEAR;
-}
-
-static GLint toWrap(spAtlasWrap wrap) {
-    switch (wrap) {
-    case SP_ATLAS_REPEAT: return GL_REPEAT;
-    case SP_ATLAS_MIRROREDREPEAT: return GL_MIRRORED_REPEAT;
-    case SP_ATLAS_CLAMPTOEDGE:
-    default: return GL_CLAMP_TO_EDGE;
-    }
-}
-
-static bool usesMipmaps(spAtlasFilter filter) {
-    return filter == SP_ATLAS_MIPMAP ||
-        filter == SP_ATLAS_MIPMAP_NEAREST_NEAREST ||
-        filter == SP_ATLAS_MIPMAP_LINEAR_NEAREST ||
-        filter == SP_ATLAS_MIPMAP_NEAREST_LINEAR ||
-        filter == SP_ATLAS_MIPMAP_LINEAR_LINEAR;
-}
-
-void _spAtlasPage_createTexture(spAtlasPage* self, const char* path) {
-    self->rendererObject = nullptr;
-    std::wstring widePath = toWidePath(path);
-    FILE* file = _wfopen(widePath.c_str(), L"rb");
-    if (!file) return;
-    if (fseek(file, 0, SEEK_END) != 0) { fclose(file); return; }
-    long len = ftell(file);
-    if (len <= 0 || len > INT_MAX || fseek(file, 0, SEEK_SET) != 0) {
-        fclose(file);
-        return;
-    }
-    std::vector<unsigned char> data(static_cast<size_t>(len));
-    const size_t bytesRead = fread(data.data(), 1, data.size(), file);
-    fclose(file);
-    if (bytesRead != data.size()) return;
-
-    int w, h, c;
-    stbi_set_flip_vertically_on_load(1);
-    unsigned char* img = stbi_load_from_memory(data.data(), (int)data.size(), &w, &h, &c, 4);
-    if (img) {
-        GLuint tid;
-        glGenTextures(1, &tid);
-        glBindTexture(GL_TEXTURE_2D, tid);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, img);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, toMinFilter(self->minFilter));
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, toMagFilter(self->magFilter));
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, toWrap(self->uWrap));
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, toWrap(self->vWrap));
-        if (usesMipmaps(self->minFilter)) glGenerateMipmap(GL_TEXTURE_2D);
-        stbi_image_free(img);
-        self->width = w;
-        self->height = h;
-        self->rendererObject = (void*)(size_t)tid;
-    }
-}
-
-void _spAtlasPage_disposeTexture(spAtlasPage* self) {
-    GLuint tid = (GLuint)(size_t)self->rendererObject;
-    if (tid) glDeleteTextures(1, &tid);
-}
-
-char* _spUtil_readFile(const char* path, int* length) {
-    if (!length) return nullptr;
-    *length = 0;
-    std::wstring widePath = toWidePath(path);
-    FILE* file = _wfopen(widePath.c_str(), L"rb");
-    if (!file) return nullptr;
-    if (fseek(file, 0, SEEK_END) != 0) { fclose(file); return nullptr; }
-    long fileLength = ftell(file);
-    if (fileLength <= 0 || fileLength > INT_MAX || fseek(file, 0, SEEK_SET) != 0) {
-        fclose(file);
-        return nullptr;
-    }
-    char* data = static_cast<char*>(malloc(static_cast<size_t>(fileLength)));
-    if (!data) { fclose(file); return nullptr; }
-    const size_t bytesRead = fread(data, 1, static_cast<size_t>(fileLength), file);
-    fclose(file);
-    if (bytesRead != static_cast<size_t>(fileLength)) {
-        free(data);
-        return nullptr;
-    }
-    *length = static_cast<int>(fileLength);
-    return data;
-}
-
-}
-
 #pragma comment(lib, "dwmapi.lib")
 
 // ---------- shaders ----------
@@ -272,8 +157,6 @@ int main() {
         state.models.clear();
         saveModelRegistry(kModelRegistryPath, state.models);
     }
-    if (discoverLive2DModels(assetsDir + "\\live2d", state.models))
-        saveModelRegistry(kModelRegistryPath, state.models);
     loadAppSettings(state);
 
     SpineModel spine;
@@ -353,6 +236,12 @@ int main() {
         }
         else {
             std::cerr << "Failed to load pet model: " << first.name << std::endl;
+            const std::string& loadError = first.type == PetModelType::Live2D
+                ? live2d.lastError() : spine.lastError();
+            if (!loadError.empty())
+                std::cerr << (first.type == PetModelType::Live2D
+                    ? "Live2D" : "Spine") << " load error: "
+                          << loadError << std::endl;
             state.currentModelIndex = -1;
         }
     }
@@ -391,6 +280,10 @@ int main() {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         stbi_image_free(img);
     }
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
 
     // control panel
     ControlPanel panel;
@@ -543,6 +436,14 @@ int main() {
         glClear(GL_COLOR_BUFFER_BIT);
 
         if (state.currentModelType == PetModelType::Live2D && live2d.loaded()) {
+            // Cubism's OpenGL renderer uses client-side vertex/index arrays.
+            // A VAO left bound by the fallback or Spine renderer makes Cubism
+            // interpret model pointers as offsets and can render the atlas as
+            // a flat texture after startup. Always draw Live2D from the default
+            // compatibility-profile vertex state.
+            glBindVertexArray(0);
+            glBindBuffer(GL_ARRAY_BUFFER, 0);
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
             live2d.update(dt);
             live2d.draw(state.renderWidth, state.renderHeight,
                 state.positionX, state.positionY, state.scale);
@@ -553,7 +454,8 @@ int main() {
             spine.update(dt);
             spine.applyAndUpdateWorldTransform();
             spineRenderer.setPremultipliedAlpha(state.premultipliedAlpha);
-            spineRenderer.draw(spine.skeleton(), proj);
+            if (spine.buildRenderData(state.premultipliedAlpha))
+                spineRenderer.draw(spine.renderData(), proj);
         }
         else if (testTex) {
             glUseProgram(shader);
@@ -576,7 +478,6 @@ int main() {
     panel.destroy();
     live2d.unload();
     spine.unload();
-    spAnimationState_disposeStatics();
     if (testTex) glDeleteTextures(1, &testTex);
     if (testEBO) glDeleteBuffers(1, &testEBO);
     if (testVBO) glDeleteBuffers(1, &testVBO);

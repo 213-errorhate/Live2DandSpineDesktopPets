@@ -1,23 +1,18 @@
 #pragma once
 
-#include <vector>
-
-struct spSkeleton;
-struct spSkeletonClipping;
+#include "SpineBackendApi.h"
 
 class SpineRenderer {
 public:
     SpineRenderer() = default;
     ~SpineRenderer();
-
     SpineRenderer(const SpineRenderer&) = delete;
     SpineRenderer& operator=(const SpineRenderer&) = delete;
 
     bool initialize(unsigned int shaderProgram);
     void shutdown();
-    void draw(spSkeleton* skeleton, const float* projection);
+    void draw(const SpineBackendRenderData& renderData, const float* projection);
     bool getBounds(float& minX, float& minY, float& maxX, float& maxY) const;
-
     void setPremultipliedAlpha(bool enabled) { premultipliedAlpha_ = enabled; }
     bool premultipliedAlpha() const { return premultipliedAlpha_; }
 
@@ -36,7 +31,4 @@ private:
     float minY_ = 0.0f;
     float maxX_ = 0.0f;
     float maxY_ = 0.0f;
-    spSkeletonClipping* clipper_ = nullptr;
-    std::vector<float> worldVertices_;
-    std::vector<float> vertexData_;
 };

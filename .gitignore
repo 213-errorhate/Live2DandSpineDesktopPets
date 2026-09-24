@@ -1,8 +1,13 @@
-# Visual Studio
+# Visual Studio / editors
 .vs/
+.vscode/
+.idea/
 *.suo
 *.user
+*.userosscache
+*.sln.docstates
 *.VC.db*
+*.opendb
 *.ipch
 
 # Build outputs
@@ -10,14 +15,27 @@ x64/
 Debug/
 Release/
 Win32/
+build/
+Build/
 Live2Dan.6a76faa9/
 *.obj
+*.pch
 *.pdb
+*.idb
+*.iobj
+*.ipdb
 *.ilk
 *.tlog
 *.log
 *.recipe
 *.lastbuildstate
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
 
-# Local model registry
-assets/spine/models.txt
+# Local models and runtime-generated model registry
+# Keep only the README files so a fresh clone still contains both folders.
+/assets/live2d/*
+!/assets/live2d/README.md
+/assets/spine/*
+!/assets/spine/README.md

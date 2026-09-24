@@ -1,29 +1,16 @@
 #include "SpineRenderer.h"
 
 #include <algorithm>
+#include <cstddef>
 #include <iostream>
 
 #include <glad/glad.h>
 
-extern "C" {
-#include <spine/spine.h>
-}
-
-namespace {
-
-constexpr int kFloatsPerVertex = 12;
-const unsigned short kQuadIndices[] = { 0, 1, 2, 2, 3, 0 };
-
-} // namespace
-
-SpineRenderer::~SpineRenderer() {
-    shutdown();
-}
+SpineRenderer::~SpineRenderer() { shutdown(); }
 
 bool SpineRenderer::initialize(unsigned int shaderProgram) {
     shutdown();
     if (!shaderProgram) return false;
-
     shaderProgram_ = shaderProgram;
     projectionLocation_ = glGetUniformLocation(shaderProgram_, "projection");
     textureLocation_ = glGetUniformLocation(shaderProgram_, "image");
@@ -39,32 +26,27 @@ bool SpineRenderer::initialize(unsigned int shaderProgram) {
     glBindVertexArray(vao_);
     glBindBuffer(GL_ARRAY_BUFFER, vbo_);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo_);
-
-    const GLsizei stride = kFloatsPerVertex * sizeof(float);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<void*>(0));
+    const GLsizei stride = sizeof(SpineBackendVertex);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, stride,
+        reinterpret_cast<void*>(offsetof(SpineBackendVertex, x)));
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<void*>(2 * sizeof(float)));
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, stride,
+        reinterpret_cast<void*>(offsetof(SpineBackendVertex, u)));
     glEnableVertexAttribArray(1);
-    glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<void*>(4 * sizeof(float)));
+    glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, stride,
+        reinterpret_cast<void*>(offsetof(SpineBackendVertex, lightR)));
     glEnableVertexAttribArray(2);
-    glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<void*>(8 * sizeof(float)));
+    glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, stride,
+        reinterpret_cast<void*>(offsetof(SpineBackendVertex, darkR)));
     glEnableVertexAttribArray(3);
     glBindVertexArray(0);
-
-    clipper_ = spSkeletonClipping_create();
-    if (vao_ == 0 || vbo_ == 0 || ebo_ == 0 || !clipper_) {
-        std::cerr << "Failed to allocate Spine renderer resources." << std::endl;
+    if (!vao_ || !vbo_ || !ebo_) {
         shutdown();
         return false;
     }
     return true;
 }
-
 void SpineRenderer::shutdown() {
-    if (clipper_) {
-        spSkeletonClipping_dispose(clipper_);
-        clipper_ = nullptr;
-    }
     if (ebo_) glDeleteBuffers(1, &ebo_);
     if (vbo_) glDeleteBuffers(1, &vbo_);
     if (vao_) glDeleteVertexArrays(1, &vao_);
@@ -75,8 +57,6 @@ void SpineRenderer::shutdown() {
     projectionLocation_ = -1;
     textureLocation_ = -1;
     boundsValid_ = false;
-    worldVertices_.clear();
-    vertexData_.clear();
 }
 
 bool SpineRenderer::getBounds(float& minX, float& minY, float& maxX, float& maxY) const {
@@ -90,27 +70,24 @@ bool SpineRenderer::getBounds(float& minX, float& minY, float& maxX, float& maxY
 
 void SpineRenderer::applyBlendMode(int blendMode) const {
     switch (blendMode) {
-    case SP_BLEND_MODE_ADDITIVE:
+    case SPINE_BACKEND_BLEND_ADDITIVE:
         glBlendFunc(premultipliedAlpha_ ? GL_ONE : GL_SRC_ALPHA, GL_ONE);
         break;
-    case SP_BLEND_MODE_MULTIPLY:
+    case SPINE_BACKEND_BLEND_MULTIPLY:
         glBlendFunc(GL_DST_COLOR, GL_ONE_MINUS_SRC_ALPHA);
         break;
-    case SP_BLEND_MODE_SCREEN:
+    case SPINE_BACKEND_BLEND_SCREEN:
         glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_COLOR);
         break;
-    case SP_BLEND_MODE_NORMAL:
     default:
         glBlendFunc(premultipliedAlpha_ ? GL_ONE : GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         break;
     }
 }
 
-void SpineRenderer::draw(spSkeleton* skeleton, const float* projection) {
+void SpineRenderer::draw(const SpineBackendRenderData& data, const float* projection) {
     boundsValid_ = false;
-    if (!skeleton || !projection || !shaderProgram_ || !clipper_) return;
-    if (skeleton->color.a <= 0.0f) return;
-
+    if (!projection || !shaderProgram_ || !data.vertices || !data.indices || !data.batches) return;
     glUseProgram(shaderProgram_);
     glUniformMatrix4fv(projectionLocation_, 1, GL_FALSE, projection);
     glUniform1i(textureLocation_, 0);
@@ -118,86 +95,17 @@ void SpineRenderer::draw(spSkeleton* skeleton, const float* projection) {
     glEnable(GL_BLEND);
     glBindVertexArray(vao_);
 
-    for (int i = 0; i < skeleton->slotsCount; ++i) {
-        spSlot* slot = skeleton->drawOrder[i];
-        spAttachment* attachment = slot ? slot->attachment : nullptr;
-        if (!attachment) {
-            if (slot) spSkeletonClipping_clipEnd(clipper_, slot);
+    for (std::uint32_t i = 0; i < data.batchCount; ++i) {
+        const SpineBackendBatch& batch = data.batches[i];
+        if (!batch.texture || !batch.vertexCount || !batch.indexCount ||
+            batch.vertexOffset + batch.vertexCount > data.vertexCount ||
+            batch.indexOffset + batch.indexCount > data.indexCount)
             continue;
-        }
-
-        if (attachment->type == SP_ATTACHMENT_CLIPPING) {
-            spSkeletonClipping_clipStart(
-                clipper_, slot, reinterpret_cast<spClippingAttachment*>(attachment));
-            continue;
-        }
-
-        if (!slot->bone->active || slot->color.a <= 0.0f) {
-            spSkeletonClipping_clipEnd(clipper_, slot);
-            continue;
-        }
-
-        float* positions = nullptr;
-        float* uvs = nullptr;
-        unsigned short* indices = nullptr;
-        int vertexCount = 0;
-        int indexCount = 0;
-        spColor* attachmentColor = nullptr;
-        unsigned int texture = 0;
-
-        if (attachment->type == SP_ATTACHMENT_REGION) {
-            auto* region = reinterpret_cast<spRegionAttachment*>(attachment);
-            worldVertices_.resize(8);
-            spRegionAttachment_computeWorldVertices(region, slot->bone, worldVertices_.data(), 0, 2);
-            positions = worldVertices_.data();
-            uvs = region->uvs;
-            indices = const_cast<unsigned short*>(kQuadIndices);
-            vertexCount = 4;
-            indexCount = 6;
-            attachmentColor = &region->color;
-            auto* atlasRegion = reinterpret_cast<spAtlasRegion*>(region->rendererObject);
-            if (atlasRegion && atlasRegion->page)
-                texture = static_cast<unsigned int>(reinterpret_cast<size_t>(atlasRegion->page->rendererObject));
-        } else if (attachment->type == SP_ATTACHMENT_MESH) {
-            auto* mesh = reinterpret_cast<spMeshAttachment*>(attachment);
-            const int coordinateCount = mesh->super.worldVerticesLength;
-            worldVertices_.resize(static_cast<size_t>(coordinateCount));
-            spVertexAttachment_computeWorldVertices(
-                reinterpret_cast<spVertexAttachment*>(mesh), slot, 0, coordinateCount,
-                worldVertices_.data(), 0, 2);
-            positions = worldVertices_.data();
-            uvs = mesh->uvs;
-            indices = mesh->triangles;
-            vertexCount = coordinateCount / 2;
-            indexCount = mesh->trianglesCount;
-            attachmentColor = &mesh->color;
-            auto* atlasRegion = reinterpret_cast<spAtlasRegion*>(mesh->rendererObject);
-            if (atlasRegion && atlasRegion->page)
-                texture = static_cast<unsigned int>(reinterpret_cast<size_t>(atlasRegion->page->rendererObject));
-        } else {
-            spSkeletonClipping_clipEnd(clipper_, slot);
-            continue;
-        }
-
-        if (!positions || !uvs || !indices || !attachmentColor || texture == 0 ||
-            attachmentColor->a <= 0.0f) {
-            spSkeletonClipping_clipEnd(clipper_, slot);
-            continue;
-        }
-
-        if (spSkeletonClipping_isClipping(clipper_)) {
-            spSkeletonClipping_clipTriangles(
-                clipper_, positions, vertexCount * 2, indices, indexCount, uvs, 2);
-            positions = clipper_->clippedVertices->items;
-            uvs = clipper_->clippedUVs->items;
-            indices = clipper_->clippedTriangles->items;
-            vertexCount = clipper_->clippedVertices->size / 2;
-            indexCount = clipper_->clippedTriangles->size;
-        }
-
-        for (int vertex = 0; vertex < vertexCount; ++vertex) {
-            const float x = positions[vertex * 2];
-            const float y = positions[vertex * 2 + 1];
+        const SpineBackendVertex* vertices = data.vertices + batch.vertexOffset;
+        const std::uint16_t* indices = data.indices + batch.indexOffset;
+        for (std::uint32_t vertex = 0; vertex < batch.vertexCount; ++vertex) {
+            const float x = vertices[vertex].x;
+            const float y = vertices[vertex].y;
             if (!boundsValid_) {
                 minX_ = maxX_ = x;
                 minY_ = maxY_ = y;
@@ -210,56 +118,16 @@ void SpineRenderer::draw(spSkeleton* skeleton, const float* projection) {
             }
         }
 
-        const float alpha = skeleton->color.a * slot->color.a * attachmentColor->a;
-        float lightR = skeleton->color.r * slot->color.r * attachmentColor->r;
-        float lightG = skeleton->color.g * slot->color.g * attachmentColor->g;
-        float lightB = skeleton->color.b * slot->color.b * attachmentColor->b;
-        float darkR = slot->darkColor ? skeleton->color.r * slot->darkColor->r : 0.0f;
-        float darkG = slot->darkColor ? skeleton->color.g * slot->darkColor->g : 0.0f;
-        float darkB = slot->darkColor ? skeleton->color.b * slot->darkColor->b : 0.0f;
-        if (premultipliedAlpha_) {
-            lightR *= alpha;
-            lightG *= alpha;
-            lightB *= alpha;
-            darkR *= alpha;
-            darkG *= alpha;
-            darkB *= alpha;
-        }
-
-        vertexData_.resize(static_cast<size_t>(vertexCount) * kFloatsPerVertex);
-        for (int vertex = 0; vertex < vertexCount; ++vertex) {
-            const int source = vertex * 2;
-            const int target = vertex * kFloatsPerVertex;
-            vertexData_[target] = positions[source];
-            vertexData_[target + 1] = positions[source + 1];
-            vertexData_[target + 2] = uvs[source];
-            vertexData_[target + 3] = uvs[source + 1];
-            vertexData_[target + 4] = lightR;
-            vertexData_[target + 5] = lightG;
-            vertexData_[target + 6] = lightB;
-            vertexData_[target + 7] = alpha;
-            vertexData_[target + 8] = darkR;
-            vertexData_[target + 9] = darkG;
-            vertexData_[target + 10] = darkB;
-            vertexData_[target + 11] = premultipliedAlpha_ ? 1.0f : 0.0f;
-        }
-
-        applyBlendMode(slot->data->blendMode);
-        glBindTexture(GL_TEXTURE_2D, texture);
+        applyBlendMode(batch.blendMode);
+        glBindTexture(GL_TEXTURE_2D, static_cast<GLuint>(batch.texture));
         glBindBuffer(GL_ARRAY_BUFFER, vbo_);
-        glBufferData(GL_ARRAY_BUFFER,
-            static_cast<GLsizeiptr>(vertexData_.size() * sizeof(float)),
-            vertexData_.data(), GL_STREAM_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(
+            batch.vertexCount * sizeof(SpineBackendVertex)), vertices, GL_STREAM_DRAW);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo_);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-            static_cast<GLsizeiptr>(indexCount * sizeof(unsigned short)),
-            indices, GL_STREAM_DRAW);
-        glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_SHORT, nullptr);
-
-        spSkeletonClipping_clipEnd(clipper_, slot);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, static_cast<GLsizeiptr>(
+            batch.indexCount * sizeof(std::uint16_t)), indices, GL_STREAM_DRAW);
+        glDrawElements(GL_TRIANGLES, batch.indexCount, GL_UNSIGNED_SHORT, nullptr);
     }
-
-    spSkeletonClipping_clipEnd2(clipper_);
     glBindVertexArray(0);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }

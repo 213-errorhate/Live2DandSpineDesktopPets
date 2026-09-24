@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <OutDir>$(SolutionDir)x64\$(Configuration)\runtimes\</OutDir>
+    <IntDir>$(SolutionDir)x64\$(Configuration)\obj\$(ProjectName)\</IntDir>
+    <TargetName>SpineBackend$(SpineRuntimeMajor)$(SpineRuntimeMinor)</TargetName>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <PreprocessorDefinitions>WIN32_LEAN_AND_MEAN;NOMINMAX;_CRT_SECURE_NO_WARNINGS;SPINE_RUNTIME_MAJOR=$(SpineRuntimeMajor);SPINE_RUNTIME_MINOR=$(SpineRuntimeMinor);%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(SpineRuntimeRoot)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="SpineBackendApi.h" />
+    <ClCompile Include="SpineBackendLegacy.cpp" />
+    <ClCompile Include="$(SpineRuntimeRoot)\src\spine\*.c">
+      <DisableSpecificWarnings>4244;4267;4305;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
+  </ItemGroup>
+  <Target Name="CopySpineRuntimeLicense" AfterTargets="Build" Condition="Exists('$(SpineRuntimeRoot)\LICENSE')">
+    <Copy SourceFiles="$(SpineRuntimeRoot)\LICENSE" DestinationFiles="$(OutDir)SpineBackend$(SpineRuntimeMajor)$(SpineRuntimeMinor)-LICENSE.txt" SkipUnchangedFiles="true" />
+  </Target>
+</Project>

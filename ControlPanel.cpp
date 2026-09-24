@@ -706,11 +706,16 @@ void ControlPanel::onLoadModel() {
     if (!GetOpenFileNameW(&ofn)) return;
 
     std::string skeletonPath = toNarrow(skeletonFile);
-    const bool isLive2D = endsWithInsensitive(skeletonPath, ".model3.json");
+    const bool isLive2D = isLive2DModelJson(skeletonPath);
     std::string base = skeletonPath;
-    if (isLive2D)
-        base.resize(base.size() - std::string(".model3.json").size());
-    else {
+    if (isLive2D) {
+        if (endsWithInsensitive(base, ".model3.json"))
+            base.resize(base.size() - std::string(".model3.json").size());
+        else {
+            size_t dot = base.find_last_of('.');
+            if (dot != std::string::npos) base = base.substr(0, dot);
+        }
+    } else {
         size_t dot = base.find_last_of('.');
         if (dot != std::string::npos) base = base.substr(0, dot);
     }

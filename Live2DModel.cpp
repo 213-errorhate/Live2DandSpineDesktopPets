@@ -128,6 +128,45 @@ void cubismReleaseFile(Csm::csmByte* bytes) {
     std::free(bytes);
 }
 
+int countUniqueMaskGroups(Csm::csmInt32 objectCount,
+                          const Csm::csmInt32** objectMasks,
+                          const Csm::csmInt32* objectMaskCounts) {
+    if (objectCount <= 0 || !objectMasks || !objectMaskCounts) return 0;
+
+    std::vector<std::vector<Csm::csmInt32>> groups;
+    for (Csm::csmInt32 object = 0; object < objectCount; ++object) {
+        const Csm::csmInt32 count = objectMaskCounts[object];
+        if (count <= 0 || !objectMasks[object]) continue;
+
+        std::vector<Csm::csmInt32> group(
+            objectMasks[object], objectMasks[object] + count);
+        std::sort(group.begin(), group.end());
+        group.erase(std::unique(group.begin(), group.end()), group.end());
+        if (std::find(groups.begin(), groups.end(), group) == groups.end())
+            groups.push_back(std::move(group));
+    }
+    return static_cast<int>(groups.size());
+}
+
+int selectMaskRenderTextureCount(const Csm::CubismModel* model,
+                                 int& uniqueMaskGroupCount) {
+    uniqueMaskGroupCount = 0;
+    if (!model) return 1;
+
+    const int drawableGroups = countUniqueMaskGroups(
+        model->GetDrawableCount(), model->GetDrawableMasks(),
+        model->GetDrawableMaskCounts());
+    const int offscreenGroups = countUniqueMaskGroups(
+        model->GetOffscreenCount(), model->GetOffscreenMasks(),
+        model->GetOffscreenMaskCounts());
+    uniqueMaskGroupCount = std::max(drawableGroups, offscreenGroups);
+
+    // Cubism packs up to 36 mask groups into one render texture. With two or
+    // more textures it uses up to 32 groups per texture.
+    if (uniqueMaskGroupCount <= 36) return 1;
+    return std::max(2, (uniqueMaskGroupCount + 31) / 32);
+}
+
 } // namespace
 
 class Live2DModel::Impl final : public Csm::CubismUserModel {
@@ -191,7 +230,14 @@ public:
 
         renderWidth_ = std::max(1u, renderWidth);
         renderHeight_ = std::max(1u, renderHeight);
-        CreateRenderer(renderWidth_, renderHeight_);
+        int uniqueMaskGroupCount = 0;
+        const int maskRenderTextureCount =
+            selectMaskRenderTextureCount(_model, uniqueMaskGroupCount);
+        CreateRenderer(renderWidth_, renderHeight_, maskRenderTextureCount);
+        if (uniqueMaskGroupCount > 0) {
+            std::cout << "Live2D mask groups: " << uniqueMaskGroupCount
+                      << ", render textures: " << maskRenderTextureCount << std::endl;
+        }
         if (!GetRenderer<Csm::Rendering::CubismRenderer_OpenGLES2>()) {
             error = "Failed to create the Live2D OpenGL renderer.";
             return false;
